@@ -3,6 +3,7 @@ import PersonsService from './services/persons'
 import axios from 'axios'
 import Persons from './components/Persons'
 import Filter from './components/Filter'
+import Notification from './components/Notification'
 import PersonForm from './components/PersonForm'
 
 const App = () => {
@@ -10,6 +11,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [search, setSearch] = useState('')
+  const [message, setMessage] = useState(null)
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -51,15 +53,19 @@ const App = () => {
       if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)){
         const person = persons.find(person => person.name === newName)
         const changedPerson = {...person, number: newNumber}
+        setMessage(`New number for ${newName} is ${newNumber}`)
         PersonsService.update(person.id, changedPerson).then(response => {
           setPersons(persons.map(person => person.id !== changedPerson.id ? person : response))
           setNewName('')
           setNewNumber('')
         })
+        setTimeout(() => {setMessage(null)}, 5000)
       }
       return
     }
+    setMessage(`Added ${newName}`)
     addPerson(event)
+    setTimeout(() => {setMessage(null)}, 5000)
   }
 
   const handleSearch = (event) => {
@@ -81,6 +87,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message}/>
       <Filter filter={search} handleFilterChange={handleSearch}/>
       <h2>Add a new</h2>
       <PersonForm newName={newName} newNumber={newNumber} handleNameChange={handlePersonChange} handleNumberChange={handleNumberChange} addPerson={handleSubmit}/>
