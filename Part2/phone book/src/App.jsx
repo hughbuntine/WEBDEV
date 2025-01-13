@@ -1,4 +1,5 @@
 import { useState, useEffect} from 'react'
+import PersonsService from './services/persons'
 import axios from 'axios'
 import Persons from './components/Persons'
 import Filter from './components/Filter'
@@ -14,12 +15,27 @@ const App = () => {
     event.preventDefault()
     const personObject = {
       name: newName,
-      number: newNumber
+      number: newNumber,
+      id: String(persons.length + 1)
     }
-    setPersons(persons.concat(personObject))
-    setNewName('')
-    setNewNumber('')
+
+    PersonsService.create(personObject).then(response => {
+      setPersons(persons.concat(response))
+      setNewName('')
+      setNewNumber('')
   }
+  )
+  }
+
+  const deletePerson = (id) => {
+    if (window.confirm('Do you really want to delete this person?')){
+      PersonsService.deletePerson(id).then(response => {
+      setPersons(persons.filter(person => person.id !== id))
+    })
+    }
+    
+  }
+
 
   const handlePersonChange = (event) => {
     setNewName(event.target.value)
@@ -42,6 +58,7 @@ const App = () => {
     setSearch(event.target.value)
   }
 
+  // on startup, fetch data from the server
   const hook = () => {
     console.log('effect')
     axios
@@ -51,7 +68,6 @@ const App = () => {
         setPersons(response.data)
       })
   }
-  
   useEffect(hook, [])
 
   return (
@@ -61,9 +77,9 @@ const App = () => {
       <h2>Add a new</h2>
       <PersonForm newName={newName} newNumber={newNumber} handleNameChange={handlePersonChange} handleNumberChange={handleNumberChange} addPerson={handleSubmit}/>
       <h2>Numbers</h2>
-      <Persons persons={persons} search={search}/>
+      <Persons persons={persons} deletePerson={deletePerson} search={search}/>
     </div>
   )
-}
 
+}
 export default App

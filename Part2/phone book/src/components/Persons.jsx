@@ -1,5 +1,5 @@
 const Persons = (props) => {
-    const { persons, search } = props;
+    const { persons, deletePerson, search} = props;
 
     const filteredPersons = persons.filter(person => {
         return person.name.toLowerCase().includes(search.toLowerCase());
@@ -9,7 +9,7 @@ const Persons = (props) => {
         <div>
             {filteredPersons.map(person => (
                 <p key={person.id}>
-                    {person.name && person.name.toLowerCase()} {person.number}
+                    {person.name && person.name.toLowerCase()} {person.number} <button onClick={() => deletePerson(person.id)}>delete</button>
                 </p>
             ))}
         </div>
